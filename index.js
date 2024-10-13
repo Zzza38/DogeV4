@@ -14,7 +14,7 @@ const __dirname = path.resolve();
 const server = http.createServer();
 const bareServer = createBareServer('/bear/');
 const app = express(server);
-const version = packageJson.version;
+const {version} = packageJson;
 const discord = 'https://discord.gg/unblocking';
 const routes = [
   { route: '/app', file: './static/index.html' },
@@ -32,6 +32,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'static')));
+//app.use("/uv/", express.static(uvPath));
 app.use("/libcurl/", express.static(libcurlPath));
 app.use("/baremux/", express.static(baremuxPath));
 

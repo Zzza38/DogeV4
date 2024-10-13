@@ -11,7 +11,7 @@ import packageJson from './package.json' assert { type: 'json' };
 
 // Set up path resolution
 const __dirname = path.resolve();
-//const uvPath = path.join(__dirname, '/proxy/'); // Ensure the 'proxy' directory exists
+const uvPath = path.join(__dirname, '/proxy/'); // Ensure the 'proxy' directory exists
 const server = http.createServer();
 const bareServer = createBareServer('/bear/');
 const app = express(server);

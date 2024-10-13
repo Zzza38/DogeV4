@@ -33,7 +33,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'static')));
-//app.use("/uv/", express.static(uvPath));
+app.use("/uv/", express.static(uvPath));
 app.use("/libcurl/", express.static(libcurlPath));
 app.use("/baremux/", express.static(baremuxPath));
 

@@ -11,7 +11,7 @@ import packageJson from './package.json' assert { type: 'json' };
 
 // Set up path resolution
 const __dirname = path.resolve();
-const uvPath = path.join(__dirname, '/proxy'); // Ensure the 'proxy' directory exists
+//const uvPath = path.join(__dirname, '/proxy'); // Ensure the 'proxy' directory exists
 
 const server = http.createServer();
 const bareServer = createBareServer('/bear/');
@@ -34,7 +34,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'static')));
-app.use("/uv/", express.static(uvPath));
+//app.use("/uv/", express.static(uvPath));
 app.use("/libcurl/", express.static(libcurlPath));
 app.use("/baremux/", express.static(baremuxPath));
 

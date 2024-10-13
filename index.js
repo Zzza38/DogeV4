@@ -4,13 +4,15 @@ import path from 'node:path';
 import { libcurlPath } from "@mercuryworkshop/libcurl-transport";
 import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
 import { createBareServer } from "@tomphttp/bare-server-node";
-const uvPath = path.join(__dirname, 'proxy');
 import wisp from "wisp-server-node";
 import request from '@cypress/request';
 import chalk from 'chalk';
 import packageJson from './package.json' assert { type: 'json' };
 
+// Set up path resolution
 const __dirname = path.resolve();
+const uvPath = path.join(__dirname, '/proxy'); // Ensure the 'proxy' directory exists
+
 const server = http.createServer();
 const bareServer = createBareServer('/bear/');
 const app = express(server);
@@ -26,28 +28,29 @@ const routes = [
   { route: '/edu', file: './static/loading.html' }
 ];
 
+// Middleware for parsing JSON and URL-encoded data
 app.use(express.json());
-app.use(
-  express.urlencoded({
-    extended: true,
-  })
-);
+app.use(express.urlencoded({ extended: true }));
 
+// Serve static files
 app.use(express.static(path.join(__dirname, 'static')));
 app.use("/uv/", express.static(uvPath));
 app.use("/libcurl/", express.static(libcurlPath));
 app.use("/baremux/", express.static(baremuxPath));
 
+// Define routes
 routes.forEach(({ route, file }) => {
   app.get(route, (req, res) => {
     res.sendFile(path.join(__dirname, file));
   });
 });
 
+// Redirect /student to /portal
 app.get('/student', (req, res) => {
   res.redirect('/portal');
 });
 
+// Fetch worker.js from an external source
 app.get('/worker.js', (req, res) => {
   request('https://cdn.surfdoge.pro/worker.js', (error, response, body) => {
     if (!error && response.statusCode === 200) {
@@ -59,24 +62,32 @@ app.get('/worker.js', (req, res) => {
   });
 });
 
+// Handle 404 errors
 app.use((req, res) => {
-  res.statusCode = 404;
-  res.sendFile(path.join(__dirname, './static/404.html'));
+  res.status(404).sendFile(path.join(__dirname, './static/404.html'));
 });
 
+// Handle incoming requests
 server.on("request", (req, res) => {
   if (bareServer.shouldRoute(req)) {
     bareServer.routeRequest(req, res);
-  } else app(req, res);
+  } else {
+    app(req, res);
+  }
 });
+
+// Handle WebSocket upgrades
 server.on("upgrade", (req, socket, head) => {
   if (bareServer.shouldRoute(req)) {
     bareServer.routeUpgrade(req, socket, head);
   } else if (req.url.endsWith("/wisp/")) {
     wisp.routeRequest(req, socket, head);
-  } else socket.end();
+  } else {
+    socket.end();
+  }
 });
 
+// Log server status on startup
 server.on('listening', () => {
   console.log(chalk.bgBlue.white.bold(`  Welcome to Doge V4, user!  `) + '\n');
   console.log(chalk.cyan('-----------------------------------------------'));
@@ -91,6 +102,7 @@ server.on('listening', () => {
   console.log(chalk.cyan('-----------------------------------------------'));
 });
 
+// Graceful shutdown function
 function shutdown(signal) {
   console.log(chalk.bgRed.white.bold(`  Shutting Down (Signal: ${signal})  `) + '\n');
   console.log(chalk.red('-----------------------------------------------'));
@@ -104,9 +116,11 @@ function shutdown(signal) {
   });
 }
 
+// Handle shutdown signals
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
 
-server.listen({
-  port: 8000,
+// Start the server
+server.listen(8000, () => {
+  console.log(`Server is running on http://localhost:8000`);
 });

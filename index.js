@@ -4,7 +4,7 @@ import path from 'node:path';
 import { libcurlPath } from "@mercuryworkshop/libcurl-transport";
 import { baremuxPath } from "@mercuryworkshop/bare-mux/node";
 import { createBareServer } from "@tomphttp/bare-server-node";
-import { uvPath } from "@Zzza38/ultraV";
+const uvPath = path.join(__dirname, 'Ultraviolet/src');
 import wisp from "wisp-server-node";
 import request from '@cypress/request';
 import chalk from 'chalk';
